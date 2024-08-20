@@ -2,13 +2,28 @@ import React, { Component } from "react";
 import css from "./css/Content.module.css";
 import {savedPosts} from "../posts.json";
 import PostItem from "./PostItem";
+import Loader from "./Loader";
 
 export class Content extends Component {
     constructor(props) {
+        console.log('Constructing')      
         super(props)
+        this.state = {
+            isLoaded: false,
+        }
     }
     
+    componentDidMount() {
+        console.log('Mounting');
+        setTimeout(() => {
+            this.setState({
+                isLoaded: true
+            })
+        }, 2000)
+    }
+
     render() {
+        console.log('Rendering');
         return (
             <div className={css.Content}>
                 
@@ -17,7 +32,9 @@ export class Content extends Component {
                 </div>
 
                 <div className={css.SearchResults}>
-                    <PostItem savedPosts={savedPosts} />
+                    {
+                        !this.state.isLoaded ? <Loader /> : <PostItem savedPosts={savedPosts} />
+                    }
                 </div>
             </div>
         )

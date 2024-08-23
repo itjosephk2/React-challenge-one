@@ -1,12 +1,14 @@
 import React, { Component } from "react";
 import css from "./css/Content.module.css";
-import {savedPosts} from "../posts.json";
+// import {savedPosts} from "../posts.json";
 import PostItem from "./PostItem";
 import Loader from "./Loader";
+import axios from "axios";
+import API_KEY from "../secrets";
+
 
 export class Content extends Component {
-    constructor(props) {
-        console.log('Constructing')      
+    constructor(props) {    
         super(props)
         this.state = {
             isLoaded: false,
@@ -15,19 +17,23 @@ export class Content extends Component {
     }
     
     componentDidMount() {
-        console.log('Mounting');
-        setTimeout(() => {
-            this.setState({
-                isLoaded: true,
-                posts: savedPosts,
-            })
-        }, 2000)
+        this.fetchImages()
+    }
+
+    async fetchImages() {
+        const response = await axios.get(`https://pixabay.com/api/?key=${API_KEY}&per_page=100&safesearch=true&editors_choice=true&orientation=horizontal`);
+        const fetchedPosts = response.data.hits
+        this.setState({
+            isLoaded: true,
+            posts: fetchedPosts,
+            savedPosts: fetchedPosts
+        })
     }
 
     handleChange = (event) => {
         const name = event.target.value.toLowerCase();
-        const filteredPosts = savedPosts.filter((post) => {
-            return post.name.toLowerCase().includes(name);
+        const filteredPosts = this.state.savedPosts.filter((post) => {
+            return post.user.toLowerCase().includes(name);
         })
 
         this.setState({
@@ -57,7 +63,9 @@ export class Content extends Component {
 
                 <div className={css.SearchResults}>
                     {
-                        !this.state.isLoaded ? <Loader /> : <PostItem savedPosts={this.state.posts} />
+                        !this.state.isLoaded 
+                        ? <Loader /> 
+                        : <PostItem savedPosts={this.state.posts} />
                     }
                 </div>
             </div>
